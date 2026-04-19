@@ -1,19 +1,15 @@
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
 
 export class MarketSignalClient {
-  private client: AxiosInstance;
+  constructor(private baseUrl: string, private timeout: number) {}
 
-  constructor(baseUrl: string, timeout: number) {
-    this.client = axios.create({ baseURL: baseUrl, timeout });
+  async signal(ticker: string): Promise<unknown> {
+    const res = await axios.get(`${this.baseUrl}/v1/signal/${ticker}`, { timeout: this.timeout });
+    return res.data;
   }
 
-  async signal(ticker: string): Promise<any> {
-    const response = await this.client.get(`/v1/signal/${ticker.toUpperCase()}`);
-    return response.data;
-  }
-
-  async batchSignal(assets: string[]): Promise<any> {
-    const response = await this.client.post('/v1/signal/batch', { assets });
-    return response.data;
+  async batchSignal(assets: string[]): Promise<unknown> {
+    const res = await axios.post(`${this.baseUrl}/v1/signal/batch`, { assets }, { timeout: this.timeout });
+    return res.data;
   }
 }

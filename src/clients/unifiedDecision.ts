@@ -1,15 +1,10 @@
-import axios, { AxiosInstance } from 'axios';
-import { DecideOptions } from '../types';
+import axios from 'axios';
 
 export class UnifiedDecisionClient {
-  private client: AxiosInstance;
+  constructor(private baseUrl: string, private timeout: number) {}
 
-  constructor(baseUrl: string, timeout: number) {
-    this.client = axios.create({ baseURL: baseUrl, timeout });
-  }
-
-  async decide(options: DecideOptions): Promise<any> {
-    const response = await this.client.post('/v1/decide', options);
-    return response.data;
+  async decide(options: unknown): Promise<unknown> {
+    const res = await axios.post(`${this.baseUrl}/v1/decide`, options, { timeout: this.timeout });
+    return res.data;
   }
 }

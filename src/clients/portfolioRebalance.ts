@@ -1,20 +1,15 @@
-import axios, { AxiosInstance } from 'axios';
-import { RebalanceOptions } from '../types';
+import axios from 'axios';
 
 export class PortfolioRebalanceClient {
-  private client: AxiosInstance;
+  constructor(private baseUrl: string, private timeout: number) {}
 
-  constructor(baseUrl: string, timeout: number) {
-    this.client = axios.create({ baseURL: baseUrl, timeout });
+  async rebalance(options: unknown): Promise<unknown> {
+    const res = await axios.post(`${this.baseUrl}/v1/rebalance`, options, { timeout: this.timeout });
+    return res.data;
   }
 
-  async rebalance(options: RebalanceOptions): Promise<any> {
-    const response = await this.client.post('/v1/rebalance', options);
-    return response.data;
-  }
-
-  async strategies(): Promise<any> {
-    const response = await this.client.get('/v1/strategies');
-    return response.data;
+  async strategies(): Promise<unknown> {
+    const res = await axios.get(`${this.baseUrl}/v1/strategies`, { timeout: this.timeout });
+    return res.data;
   }
 }

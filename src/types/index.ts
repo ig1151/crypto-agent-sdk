@@ -1,6 +1,7 @@
 export interface PortfolioAsset {
   asset: string;
   value: number;
+  weight?: number;
 }
 
 export interface NewsArticle {
@@ -17,6 +18,7 @@ export interface CryptoAgentConfig {
     newsImpact?: string;
     portfolioRebalance?: string;
     marketTrigger?: string;
+    strategyExecution?: string;
   };
   timeout?: number;
 }
@@ -26,14 +28,6 @@ export interface DecideOptions {
   risk_tolerance: 'low' | 'medium' | 'high';
   news?: NewsArticle[];
   primary_asset?: string;
-}
-
-export interface SignalOptions {
-  ticker: string;
-}
-
-export interface BatchSignalOptions {
-  assets: string[];
 }
 
 export interface NewsImpactOptions {
@@ -71,7 +65,49 @@ export interface TriggerOptions {
   asset: string;
   conditions: TriggerConditions;
   context: {
-    news_impact?: Record<string, any>;
-    market_signal?: Record<string, any>;
+    news_impact?: Record<string, unknown>;
+    market_signal?: Record<string, unknown>;
   };
+}
+
+// Strategy Execution types
+export type StrategyName = 'news_momentum' | 'trend_following' | 'risk_adjusted';
+export type RiskTolerance = 'low' | 'medium' | 'high';
+
+export interface ExecuteStrategyOptions {
+  portfolio: PortfolioAsset[];
+  strategy: StrategyName;
+  risk_tolerance?: RiskTolerance;
+  assets?: string[];
+}
+
+export interface StrategyAction {
+  asset: string;
+  action: 'buy' | 'sell' | 'hold';
+  amount: number;
+  confidence: number;
+}
+
+export interface StrategyResult {
+  strategy: StrategyName;
+  decision: string;
+  confidence: number;
+  actions: StrategyAction[];
+  reasoning: string[];
+  sources: string[];
+  latency_ms: number;
+  timestamp: string;
+}
+
+export interface BacktestResult {
+  strategy: StrategyName;
+  backtest_scenarios: Array<{ scenario: string } & StrategyResult>;
+  timestamp: string;
+}
+
+export interface StrategyDefinition {
+  name: StrategyName;
+  description: string;
+  parameters: string[];
+  risk_levels: RiskTolerance[];
 }

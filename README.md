@@ -1,6 +1,6 @@
 # @ig1151/crypto-agent-sdk
 
-TypeScript SDK for the crypto decision stack. One import to access market signals, news impact, portfolio rebalancing and unified trading decisions.
+TypeScript SDK for the crypto decision stack. One import to access market signals, news impact, portfolio rebalancing, unified decisions and strategy execution.
 
 ## Install
 
@@ -8,58 +8,73 @@ TypeScript SDK for the crypto decision stack. One import to access market signal
 npm install @ig1151/crypto-agent-sdk
 ```
 
-## Quick start
+## Quick Start
 
 ```typescript
-import { CryptoAgent } from '@ig1151/crypto-agent-sdk';
+import CryptoAgent from '@ig1151/crypto-agent-sdk';
 
 const agent = new CryptoAgent();
 
-// Unified decision — combines market signals, news impact and portfolio analysis
-const decision = await agent.decide({
+// Execute a strategy (new in v2)
+const result = await agent.executeStrategy({
   portfolio: [
-    { asset: 'BTC', value: 6000 },
-    { asset: 'ETH', value: 3000 }
+    { asset: 'BTC', value: 10000, weight: 0.6 },
+    { asset: 'ETH', value: 4000, weight: 0.3 },
+    { asset: 'SOL', value: 1000, weight: 0.1 },
   ],
+  strategy: 'news_momentum',
   risk_tolerance: 'medium',
-  news: [
-    { title: 'SEC moves closer to Bitcoin ETF approval', source: 'CoinDesk' }
-  ]
 });
 
-console.log(decision.final_decision); // "reduce_and_rebalance"
-console.log(decision.urgency);        // "medium"
-console.log(decision.actions);        // buy/sell actions
+console.log(result.decision);   // e.g. "increase_btc_exposure"
+console.log(result.actions);    // [{ asset: 'BTC', action: 'buy', amount: 1000, confidence: 0.84 }]
+console.log(result.reasoning);  // ["High-impact bullish news detected..."]
+
+// Backtest a strategy
+const backtest = await agent.backtestStrategy({
+  portfolio: [...],
+  strategy: 'trend_following',
+  risk_tolerance: 'high',
+});
+
+// List available strategies
+const { strategies } = await agent.listStrategies();
+
+// Other methods (unchanged from v1)
+const signal = await agent.signal('BTC');
+const decision = await agent.decide({ portfolio: [...], risk_tolerance: 'medium' });
+const rebalanced = await agent.rebalance({ portfolio: [...], strategy: 'equal_weight', risk_tolerance: 'low' });
 ```
 
 ## Methods
 
-### `agent.decide(options)` — Unified decision
-Combines market signals, news impact and portfolio analysis into one decision.
+| Method | Description |
+|--------|-------------|
+| `executeStrategy(options)` | Run a strategy → get decision + actions + reasoning |
+| `backtestStrategy(options)` | Backtest across bear / neutral / bull scenarios |
+| `listStrategies()` | List available strategies and parameters |
+| `decide(options)` | Unified decision from all signals |
+| `signal(ticker)` | Market signal for a single asset |
+| `batchSignal(assets)` | Signals for multiple assets |
+| `newsImpact(options)` | News impact analysis |
+| `rebalance(options)` | Portfolio rebalance recommendation |
+| `trigger(options)` | Market trigger evaluation |
 
-### `agent.signal(ticker)` — Market signal
-Returns buy/sell/hold decision for a single stock or crypto ticker.
+## Strategies
 
-### `agent.batchSignal(assets)` — Batch signals
-Returns signals for up to 10 tickers in one call.
+| Name | Description |
+|------|-------------|
+| `news_momentum` | Reacts to high-impact crypto news to adjust exposure |
+| `trend_following` | Follows strong directional market signals |
+| `risk_adjusted` | Rebalances portfolio to target weights |
 
-### `agent.newsImpact(options)` — News impact
-Analyzes news articles and returns market impact assessment.
+## What's New in v2
 
-### `agent.rebalance(options)` — Portfolio rebalance
-Returns target allocations, drift analysis and rebalance actions.
-
-### `agent.trigger(options)` — Trigger evaluation
-Evaluates conditions against market context and returns trigger signal.
-
-## APIs
-
-This SDK wraps:
-- [Unified Decision API](https://unified-decision-api.onrender.com)
-- [Market Decision API](https://market-signal-api-iu2o.onrender.com)
-- [Crypto News Impact API](https://crypto-news-impact-api.onrender.com)
-- [Portfolio Rebalance API](https://portfolio-rebalance-api.onrender.com)
-- [Market Trigger API](https://market-trigger-api.onrender.com)
+- `executeStrategy()` — the strategy execution layer
+- `backtestStrategy()` — test strategies across scenarios
+- `listStrategies()` — discover available strategies
+- Full TypeScript types for all strategy inputs and outputs
+- `strategyExecution` base URL override in config
 
 ## License
 

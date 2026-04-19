@@ -1,15 +1,10 @@
-import axios, { AxiosInstance } from 'axios';
-import { TriggerOptions } from '../types';
+import axios from 'axios';
 
 export class MarketTriggerClient {
-  private client: AxiosInstance;
+  constructor(private baseUrl: string, private timeout: number) {}
 
-  constructor(baseUrl: string, timeout: number) {
-    this.client = axios.create({ baseURL: baseUrl, timeout });
-  }
-
-  async evaluate(options: TriggerOptions): Promise<any> {
-    const response = await this.client.post('/v1/trigger', options);
-    return response.data;
+  async evaluate(options: unknown): Promise<unknown> {
+    const res = await axios.post(`${this.baseUrl}/v1/trigger`, options, { timeout: this.timeout });
+    return res.data;
   }
 }

@@ -1,15 +1,10 @@
-import axios, { AxiosInstance } from 'axios';
-import { NewsImpactOptions } from '../types';
+import axios from 'axios';
 
 export class NewsImpactClient {
-  private client: AxiosInstance;
+  constructor(private baseUrl: string, private timeout: number) {}
 
-  constructor(baseUrl: string, timeout: number) {
-    this.client = axios.create({ baseURL: baseUrl, timeout });
-  }
-
-  async analyze(options: NewsImpactOptions): Promise<any> {
-    const response = await this.client.post('/v1/news-impact', options);
-    return response.data;
+  async analyze(options: unknown): Promise<unknown> {
+    const res = await axios.post(`${this.baseUrl}/v1/analyze`, options, { timeout: this.timeout });
+    return res.data;
   }
 }
